@@ -34,12 +34,15 @@ class DirectoryAPI(Resource):
       print(current_user.user_id)
       user_id = current_user.user_id
 
-      new_department = Directory(dir_name=dir_name, user_id=user_id)
-      print(new_department)
-      db.session.add(new_department)
-      a = jsonify(directory_schema.dump(new_department))
-      db.session.commit()
-      return a
+      new_directory = Directory(dir_name=dir_name, user_id=user_id)
+      print(new_directory)
+      db.session.add(new_directory)
+      db.session.flush()
+      # db.session.refresh(added_directory)
+      print(new_directory.__dict__)
+      added_directory = jsonify(directory_schema.dump(new_directory))
+      print(added_directory.__dict__)
+      return added_directory
 
 
 class IndividualDirectoryAPI(Resource):
@@ -61,7 +64,7 @@ class IndividualDirectoryAPI(Resource):
           response = make_response(jsonify(error_dict), 401)
           response.headers["Content-Type"] = "application/json"
           return response
-    
+
     @auth_required('token')
     def put(self, id):
       directory_schema = DirectorySchema()
@@ -91,7 +94,7 @@ class IndividualDirectoryAPI(Resource):
           response = make_response(jsonify(error_dict), 401)
           response.headers["Content-Type"] = "application/json"
           return response
-    
+
     @auth_required('token')
     def delete(self, id):
       directory_schema = DirectorySchema()
