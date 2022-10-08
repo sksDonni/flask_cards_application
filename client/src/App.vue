@@ -31,13 +31,14 @@ import { RouterLink, RouterView } from 'vue-router'
 export default {
   methods:{
     isAuth(){
-      if(localStorage.getItem('auth_token')){
+      if(this.$store.state.logged_in){
         return true
       }
       return false
     },
     logout(){
       localStorage.clear('auth-token')
+      this.$store.dispatch('logoutUser')
       this.$router.push('/login')
     }
   },

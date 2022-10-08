@@ -7,7 +7,7 @@
     <h2 class="">
       <button class="such-button main-button"><router-link :to="{name: 'add_dir'}">
         Add Directories
-      </router-link></button> 
+      </router-link></button>
     </h2>
 
     <div class="dir-wrapper">
@@ -43,6 +43,16 @@ export default {
           this.$router.push(`/`)
         }
       })
+    },
+    get_directories(){
+      console.log("called")
+      this.$store.dispatch("fetchDirectories")
+      .then(res => {
+        if(res.status == 200){
+          console.log(res)
+        }
+      })
+      console.log(this.$store.state.directories)
     }
   },
   computed:{
@@ -50,9 +60,8 @@ export default {
       directories: state => state.directories
     })
   },
-  mounted(){
-    this.$store.dispatch("fetchDirectories")
-    console.log(this.$store.state)
+  created(){
+    this.get_directories()
   }
 }
 </script>
