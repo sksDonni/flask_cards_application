@@ -2,8 +2,8 @@ import axios from 'axios'
 import * as Vue from 'vue'
 import Vuex from 'vuex'
 
-const baseURL = "http://192.168.29.210:8000/api"
-const authURL = "http://192.168.29.210:8000"
+const baseURL = "http://localhost:8000/api"
+const authURL = "http://localhost:8000"
 
 axios.interceptors.request.use(
   request => {
@@ -27,15 +27,16 @@ export const store = new Vuex.Store({
     individualCard:{},
     cardQueue: [],
     cardQueueStart: 0,
+    logged_in: false
   }),
 
   mutations:{
     GET_DIRECTORIES(state, payload) {
       state.directories = payload
-    }, 
+    },
     GET_DIRECTORIES_ERROR(state, payload){
       state.errors = "fetch error"
-    }, 
+    },
     GET_DIRECTORY_BY_ID(state, payload){
       console.log(payload)
       state.individualDir = payload
@@ -57,8 +58,10 @@ export const store = new Vuex.Store({
       state.individualDir.dir_decks.push(payload)
     },
     ADD_DIR(state, payload){
-      console.log(payload)
-      state.directories.push(payload)
+      let data = payload.data
+      console.log("commited", data)
+      state.directories.push(data)
+      console.log(state.directories)
     },
     GET_CARD_BY_ID(state, payload){
       console.log(payload)
@@ -83,6 +86,12 @@ export const store = new Vuex.Store({
       let d = state.directories
       d = d.filter(a => a.dir_id != payload.dir_id)
       state.directories = d
+    },
+    LOGIN_USER(state, payload){
+      state.logged_in = true
+    },
+    LOGOUT_USER(state){
+      state.logged_in = false
     }
   },
 
@@ -90,7 +99,7 @@ export const store = new Vuex.Store({
     async fetchDirectoryById( {commit}, payload ){
       console.log(payload)
       let id = payload.id.toString()
-      let response = await axios.get("http://192.168.29.210:8000/api/directory/"+(id))
+      let response = await axios.get(baseURL+"/directory/"+(id))
       let {data} = response
       console.log(data)
       commit("GET_DIRECTORY_BY_ID", data)
@@ -98,7 +107,7 @@ export const store = new Vuex.Store({
     },
 
     async fetchDirectories( {commit}, payload ){
-      let response = await axios.get("http://192.168.29.210:8000/api/directory")
+      let response = await axios.get(baseURL+"/directory")
       let {data} = response
       console.log(data)
       commit("GET_DIRECTORIES", data)
@@ -177,7 +186,14 @@ export const store = new Vuex.Store({
       console.log(payload)
       let response = await axios.post(authURL+"/login?include_auth_token", payload)
       console.log(response)
+      if(response.status == 200){
+        commit("LOGIN_USER")
+      }
       return response
+    },
+
+    logoutUser({commit}, payload){
+      commit("LOGOUT_USER")
     },
 
     async fetchCardById( {commit}, payload){
